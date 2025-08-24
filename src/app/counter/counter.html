@@ -1,0 +1,43 @@
+<div class="page">
+  <header>
+    <h1>Pradakshina Counter</h1>
+  </header>
+
+  <section class="target">
+    <label for="target">Target</label>
+    <input id="target" type="number" min="1" [value]="target"
+           (input)="setTarget(($any($event.target)).valueAsNumber)" />
+  </section>
+
+  <section class="progress">
+    <div class="ring">
+      <svg width="140" height="140" viewBox="0 0 140 140" role="img" aria-label="progress">
+        <!-- Track -->
+        <circle class="track" cx="70" cy="70" [attr.r]="r" />
+        <!-- Progress -->
+        <circle class="meter" cx="70" cy="70" [attr.r]="r"
+                [attr.stroke-dasharray]="circumference"
+                [attr.stroke-dashoffset]="dashOffset" />
+      </svg>
+      <div class="center">
+        <div class="count">{{ count }}</div>
+        <div class="of">/ {{ target }}</div>
+        <div class="pct">{{ progress | number:'1.0-0' }}%</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="controls">
+    <button (click)="dec()" [disabled]="count === 0">–</button>
+    <button class="primary" (click)="inc()" [disabled]="count >= target">+</button>
+  </section>
+
+  <section class="actions">
+    <button (click)="resetCount()" [disabled]="count===0">Reset Count</button>
+    <button (click)="resetAll()">Reset All</button>
+  </section>
+
+  <footer>
+    <small>Counts are saved in your browser.</small>
+  </footer>
+</div>
