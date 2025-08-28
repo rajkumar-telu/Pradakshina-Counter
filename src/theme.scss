@@ -1,0 +1,167 @@
+:root {
+  --bg: #F9FAFB;
+  --text: #333333;
+  --accent: #FF9933;
+  --accent-contrast: #ffffff;
+  --secondary: #008080;
+  --muted: #E5E7EB;
+  --ring-track: #EEEEEE;
+  --shadow: 0 8px 24px rgba(0,0,0,.08);
+  --border: #E5E7EB;
+  --surface: #ffffff;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --error: #EF4444;
+}
+
+:root.dark {
+  --bg: #0f1115;
+  --text: #e6e6e6;
+  --accent: #FF9933;
+  --accent-contrast: #1b1b1b;
+  --secondary: #27b4b4;
+  --muted: #2a2d34;
+  --ring-track: #20232a;
+  --shadow: 0 10px 28px rgba(0,0,0,.35);
+  --border: #2a2d34;
+  --surface: #1a1d23;
+  --success: #34D399;
+  --warning: #FBBF24;
+  --error: #F87171;
+}
+
+// Mixins
+@mixin mobile-first {
+  @media (min-width: 768px) {
+    @content;
+  }
+}
+
+@mixin safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 20px);
+}
+
+@mixin focus-ring {
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+@mixin button-reset {
+  border: none;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+}
+
+@mixin smooth-transition($property: all, $duration: 200ms) {
+  transition: $property $duration cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// Utility classes
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.gap-2 {
+  gap: 0.5rem;
+}
+
+.gap-4 {
+  gap: 1rem;
+}
+
+.gap-6 {
+  gap: 1.5rem;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.h-full {
+  height: 100%;
+}
+
+.min-h-screen {
+  min-height: 100vh;
+}
+
+.min-h-screen-mobile {
+  min-height: 100dvh;
+}
+
+.rounded-lg {
+  border-radius: 0.5rem;
+}
+
+.rounded-xl {
+  border-radius: 0.75rem;
+}
+
+.rounded-2xl {
+  border-radius: 1rem;
+}
+
+.shadow-lg {
+  box-shadow: var(--shadow);
+}
+
+.bg-surface {
+  background-color: var(--surface);
+}
+
+.bg-accent {
+  background-color: var(--accent);
+}
+
+.text-accent {
+  color: var(--accent);
+}
+
+.text-accent-contrast {
+  color: var(--accent-contrast);
+}
+
+.text-secondary {
+  color: var(--secondary);
+}
+
+.text-muted {
+  color: var(--muted);
+}
+
+.border-border {
+  border-color: var(--border);
+} 

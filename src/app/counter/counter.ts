@@ -1,77 +1,111 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-type State = {target:number, count: number};
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { StateService } from '../services/state.service';
+import { HapticsService } from '../services/haptics.service';
+import { AudioService } from '../services/audio.service';
+import { IconComponent } from '../ui/icon/icon.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-counter',
-  imports: [CommonModule],
+  standalone: true,
+  imports: [CommonModule, FormsModule, IconComponent],
   templateUrl: './counter.html',
   styleUrl: './counter.scss'
 })
-export class CounterComponent implements OnInit{
-  private storageKey = 'pradakshina_counter_v1';
-  target = 108;
+export class CounterComponent implements OnInit, OnDestroy {
   count = 0;
-
+  target = 108;
+  progress = 0;
+  dashOffset = 0;
+  
   readonly r = 54;
   readonly circumference = 2 * Math.PI * this.r;
+  private subscriptions: Subscription[] = [];
 
-  ngOnInit(): void{
-    const raw = localStorage.getItem(this.storageKey);
-    if(raw){
-      try{
-        const s = JSON.parse(raw) as State;
-        this.target = Math.max(1, Math.floor(s.target));
-        this.count = Math.max(0, Math.floor(s.count));
-      }catch{}
+  constructor(
+    private stateService: StateService,
+    private hapticsService: HapticsService,
+    private audioService: AudioService,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    // Subscribe to state changes
+    const stateSub = this.stateService.state$.subscribe(state => {
+      this.count = state.count;
+      this.target = state.target;
+      this.updateProgress();
+    });
+
+    this.subscriptions.push(stateSub);
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
+  private updateProgress(): void {
+    if (this.target <= 0) {
+      this.progress = 0;
+    } else {
+      this.progress = Math.min(100, (this.count / this.target) * 100);
     }
-    this.save();
+    this.dashOffset = this.circumference * (1 - this.progress / 100);
   }
 
-  get progress(): number{
-    if(this.target <= 0) return 0;
-    return Math.min(100,(this.count/this.target)* 100);
-  }
-
-  get dashOffset(): number{
-    return this.circumference * (1 - this.progress / 100);
-  }
-
-  setTarget(t:number){
-    this.target = Math.max(1,Math.floor(t || 0));
-    if(this.count > this.target) this.count = this.target;
-    this.save();
-  }
-
-  inc(){
-    if(this.count < this.target){
-      this.count++;
-      this.save();
+  increment(): void {
+    if (this.count < this.target) {
+      this.stateService.updateCount(this.count + 1);
+      
+      // Feedback
+      this.hapticsService.lightTap();
+      this.audioService.playClick();
+      
+      // Check if goal reached
+      if (this.count + 1 >= this.target) {
+        this.hapticsService.goalReached();
+        this.audioService.playGoalReached();
+      }
     }
   }
 
-  dec(){
-    if(this.count > 0){
-      this.count--;
-      this.save();
+  decrement(): void {
+    if (this.count > 0) {
+      this.stateService.updateCount(this.count - 1);
+      this.hapticsService.lightTap();
     }
   }
 
-  resetCount(){
-    this.count = 0;
-    this.save();
+  setTarget(newTarget: number): void {
+    this.stateService.setTarget(newTarget);
   }
 
-  resetAll(){
-    this.target = 108;
-    this.count = 0;
-    this.save();
+  resetCount(): void {
+    this.stateService.resetCount();
+    this.hapticsService.mediumTap();
   }
 
-  private save(){
-    const s: State = { target: this.target, count:this.count};
-    localStorage.setItem(this.storageKey, JSON.stringify(s));
+  resetAll(): void {
+    this.stateService.resetAll();
+    this.hapticsService.mediumTap();
+  }
+
+  openSettings(): void {
+    this.router.navigate(['/settings']);
+  }
+
+  // Quick goal presets
+  setQuickGoal(goal: number): void {
+    this.setTarget(goal);
+    this.hapticsService.lightTap();
+  }
+
+  // Accessibility
+  getAriaLabel(): string {
+    return `Count ${this.count} of ${this.target}, ${this.progress.toFixed(0)} percent`;
   }
 }
 

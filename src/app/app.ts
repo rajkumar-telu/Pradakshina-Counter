@@ -1,12 +1,27 @@
-import { Component, signal } from '@angular/core';
-import {CounterComponent} from './counter/counter';
+import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  'standalone': true,
-  imports: [CounterComponent],
-  templateUrl: './app.html',
-  styleUrl: './app.scss'
+  standalone: true,
+  imports: [RouterOutlet],
+  template: `
+    <main>
+      <router-outlet></router-outlet>
+    </main>
+  `,
+  styles: [`
+    :host {
+      display: block;
+      height: 100vh;
+      overflow: hidden;
+    }
+    
+    main {
+      height: 100%;
+    }
+  `]
 })
-export class App {
+export class AppComponent {
+  title = 'Pradakshina Counter';
 }

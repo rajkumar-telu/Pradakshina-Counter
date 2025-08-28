@@ -1,43 +1,119 @@
-<div class="page">
-  <header>
-    <h1>Pradakshina Counter</h1>
+<div class="counter-page">
+  <!-- Header -->
+  <header class="counter-header">
+    <button 
+      class="header-button reset-button" 
+      (click)="resetCount()" 
+      [disabled]="count === 0"
+      aria-label="Reset count"
+    >
+      <app-icon name="reset" size="20"></app-icon>
+    </button>
+    
+    <h1 class="counter-title">Pradakshina Counter</h1>
+    
+    <button 
+      class="header-button settings-button" 
+      (click)="openSettings()"
+      aria-label="Open settings"
+    >
+      <app-icon name="settings" size="20"></app-icon>
+    </button>
   </header>
 
-  <section class="target">
-    <label for="target">Target</label>
-    <input id="target" type="number" min="1" [value]="target"
-           (input)="setTarget(($any($event.target)).valueAsNumber)" />
-  </section>
-
-  <section class="progress">
-    <div class="ring">
-      <svg width="140" height="140" viewBox="0 0 140 140" role="img" aria-label="progress">
-        <!-- Track -->
-        <circle class="track" cx="70" cy="70" [attr.r]="r" />
-        <!-- Progress -->
-        <circle class="meter" cx="70" cy="70" [attr.r]="r"
-                [attr.stroke-dasharray]="circumference"
-                [attr.stroke-dashoffset]="dashOffset" />
+  <!-- Main Counter Display -->
+  <main class="counter-main">
+    <div class="progress-ring-container">
+      <svg 
+        width="140" 
+        height="140" 
+        viewBox="0 0 140 140" 
+        role="img" 
+        [attr.aria-label]="getAriaLabel()"
+        class="progress-ring"
+      >
+        <!-- Background track -->
+        <circle 
+          class="ring-track" 
+          cx="70" 
+          cy="70" 
+          [attr.r]="r" 
+        />
+        
+        <!-- Progress indicator -->
+        <circle 
+          class="ring-progress" 
+          cx="70" 
+          cy="70" 
+          [attr.r]="r"
+          [attr.stroke-dasharray]="circumference"
+          [attr.stroke-dashoffset]="dashOffset" 
+        />
       </svg>
-      <div class="center">
-        <div class="count">{{ count }}</div>
-        <div class="of">/ {{ target }}</div>
-        <div class="pct">{{ progress | number:'1.0-0' }}%</div>
+      
+      <!-- Center content -->
+      <div class="ring-center">
+        <div class="count-display" [class.goal-reached]="count >= target">
+          {{ count }}
+        </div>
+        <div class="count-label">Rounds Completed</div>
+        <div class="goal-display">
+          <span class="goal-text">Goal: {{ target }}</span>
+          <span class="progress-percent">{{ progress | number:'1.0-0' }}%</span>
+        </div>
       </div>
     </div>
-  </section>
 
-  <section class="controls">
-    <button (click)="dec()" [disabled]="count === 0">–</button>
-    <button class="primary" (click)="inc()" [disabled]="count >= target">+</button>
-  </section>
+    <!-- Goal Setting -->
+    <div class="goal-section">
+      <div class="goal-input-group">
+        <label for="target-input" class="goal-label">Set Goal:</label>
+        <input 
+          id="target-input"
+          type="number" 
+          min="1" 
+          [value]="target"
+          (input)="setTarget(($any($event.target)).valueAsNumber)"
+          class="goal-input"
+          inputmode="numeric"
+          aria-label="Set target goal"
+        />
+      </div>
+      
+      <!-- Quick goal presets -->
+      <div class="quick-goals">
+        <button 
+          *ngFor="let goal of [11, 21, 51, 108]"
+          (click)="setQuickGoal(goal)"
+          class="quick-goal-btn"
+          [class.active]="target === goal"
+          [attr.aria-label]="'Set goal to ' + goal"
+        >
+          {{ goal }}
+        </button>
+      </div>
+    </div>
+  </main>
 
-  <section class="actions">
-    <button (click)="resetCount()" [disabled]="count===0">Reset Count</button>
-    <button (click)="resetAll()">Reset All</button>
-  </section>
+  <!-- Main Action Button -->
+  <div class="action-container">
+    <button 
+      class="main-action-btn"
+      (click)="increment()"
+      [disabled]="count >= target"
+      [attr.aria-label]="count >= target ? 'Goal reached' : 'Tap to count'"
+    >
+      <app-icon name="plus" size="32"></app-icon>
+      <span class="action-text">Tap to Count</span>
+    </button>
+  </div>
 
-  <footer>
-    <small>Counts are saved in your browser.</small>
-  </footer>
+  <!-- Live region for screen readers -->
+  <div 
+    class="sr-only" 
+    aria-live="polite" 
+    aria-atomic="true"
+  >
+    {{ getAriaLabel() }}
+  </div>
 </div>
